@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CodeAssignment72Media.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -13,18 +14,42 @@ namespace CodeAssignment72Media.Controllers
             return View();
         }
 
-        public ActionResult About()
+        [HttpPost]
+        public ActionResult ValidateInput(Numbers model)
         {
-            ViewBag.Message = "Your application description page.";
+            if (ModelState.IsValid)
+            {
+                IDictionary<string, int> dict = new Dictionary<string, int>();
+                string[] array = model.Input.Split(',');
+                string message = "[]";
 
-            return View();
-        }
+                //Counts the number of times an int repeats itself
+                foreach (var item in array)
+                {
+                    if (dict.ContainsKey(item))
+                        dict[item] += 1;
+                    else
+                        dict.Add(item, 1);
 
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
+                }
 
-            return View();
+                //Get the integers that repeats at least 3 times
+                var filteredResult = dict.Where(p => p.Value > 2).OrderByDescending(p => p.Key);
+
+                //Builds the message for the user
+                if (filteredResult.Any())
+                {
+                    message = string.Empty;
+                    foreach (var item in filteredResult)
+                    {
+                        message += string.Format("{0},", item.Key);
+                    }
+                }
+
+                model.Message = message.TrimEnd(',');
+            }
+
+            return View("Index", model);
         }
     }
 }
